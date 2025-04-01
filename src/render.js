@@ -30,8 +30,23 @@ document.getElementById('videoSourceDropdown').onchange = async (event) => {
 	const inputSources = await window.electron.getVideoSources();
 	const selectedSource = inputSources.find(src => src.id === sourceId);
 
+	
 	if (selectedSource) {
-		// console.log('Selected source:', selectedSource);
+		console.log('Selected source:', selectedSource);
+		const constraints = {
+			audio: false,
+			video: {
+				mandatory: {
+					chromeMediaSource: 'desktop',
+					chromeMediaSourceId: sourceId
+				}
+			}
+		}
+
+		const stream = await navigator.mediaDevices.getUserMedia(constraints);
+		const videoElement = document.querySelector('video');
+		videoElement.srcObject = stream;
+		videoElement.play();
 	}
 };
   
