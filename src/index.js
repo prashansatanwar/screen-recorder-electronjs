@@ -1,5 +1,6 @@
-const { app, BrowserWindow, ipcMain, desktopCapturer } = require('electron');
+const { app, BrowserWindow, ipcMain, desktopCapturer, dialog } = require('electron');
 const path = require('path');
+const { writeFile } = require('fs');
 
 let mainWindow;
 
@@ -32,6 +33,28 @@ function createWindow() {
   });
 }
 
+// Handle video saving
+
+ipcMain.on('save-video', async (event, buffer) => {
+  console.log("Received video data in main process.");
+  
+  const { filePath } = await dialog.showSaveDialog({
+      buttonLabel: 'Save Video',
+      defaultPath: `vid-${Date.now()}.webm`
+  });
+
+  if (filePath) {
+      writeFile(filePath, buffer, (err) => {
+          if (err) {
+              console.error("Error saving video:", err);
+          } else {
+              console.log("Video saved successfully!");
+          }
+      });
+  } else {
+      console.warn("No file path selected.");
+  }
+});
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {

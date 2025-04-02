@@ -2,5 +2,6 @@ console.log('Preload script loaded!'); // This should appear in the DevTools con
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electron', {
-  getVideoSources: () => ipcRenderer.invoke('get-video-sources')
+  getVideoSources: () => ipcRenderer.invoke('get-video-sources'),
+  saveVideo: (buffer) => ipcRenderer.send('save-video', buffer)
 });
