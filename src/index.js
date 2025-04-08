@@ -24,7 +24,6 @@ function createWindow() {
       const inputSources = await desktopCapturer.getSources({
         types: ['screen', 'window'],
       });
-      console.log('Available sources:', inputSources);
       return inputSources;
     } catch (error) {
       console.error('Error getting video sources:', error);

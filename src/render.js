@@ -1,13 +1,30 @@
-const videoSelectBtn = document.getElementById('videoSelectBtn')
+// const videoSelectBtn = document.getElementById('videoSelectBtn')
+const dropdown = document.getElementById('videoSourceDropdown');
 
-videoSelectBtn.onclick = async () => {
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+
+const recordButtons = document.getElementById('recordButtons');
+
+let mediaRecorder;
+let selectedSource = null;
+const recordedChunks = [];
+
+const optionClass = ""
+
+dropdown.onmousedown = async (e) => {
     try {
       const inputSources = await window.electron.getVideoSources();
-      // console.log('Input sources:', inputSources);
-  
-      const dropdown = document.getElementById('videoSourceDropdown');
-      dropdown.innerHTML = ''; // Clear previous entries
-  
+
+      dropdown.innerHTML = ''
+      if(selectedSource) {
+        const placeholderOption = document.createElement('option');
+        placeholderOption.disabled = true;
+        placeholderOption.selected = true;
+        placeholderOption.hidden = true;
+        placeholderOption.textContent = selectedSource.name;
+        dropdown.appendChild(placeholderOption);
+      }
       if (inputSources && inputSources.length > 0) {
         inputSources.forEach((source) => {
           const option = document.createElement('option');
@@ -15,27 +32,28 @@ videoSelectBtn.onclick = async () => {
           option.innerText = source.name;
           dropdown.appendChild(option);
         });
-        dropdown.style.display = 'block'; // Show dropdown if hidden
-      } else {
-        // console.log('No video sources available.');
-        dropdown.style.display = 'none'; // Hide dropdown if no sources
-      }
+      } 
     } catch (error) {
       console.error('Error fetching video sources:', error);
     }
 };
 
-let mediaRecorder;
-const recordedChunks = [];
   
-document.getElementById('videoSourceDropdown').onchange = async (event) => {
+dropdown.onchange = async (event) => {
 	const sourceId = event.target.value;
 	const inputSources = await window.electron.getVideoSources();
-	const selectedSource = inputSources.find(src => src.id === sourceId);
-
+	selectedSource = inputSources.find(src => src.id === sourceId);
 	
 	if (selectedSource) {
-		console.log('Selected source:', selectedSource);
+    recordButtons.classList.remove("hidden");
+    dropdown.innerHTML = '';
+    const placeholderOption = document.createElement('option');
+    placeholderOption.disabled = true;
+    placeholderOption.selected = true;
+    placeholderOption.hidden = true;
+    placeholderOption.textContent = selectedSource.name;
+    dropdown.appendChild(placeholderOption);
+
 		const constraints = {
 			audio: false,
 			video: {
@@ -60,12 +78,11 @@ document.getElementById('videoSourceDropdown').onchange = async (event) => {
 };
 
 const handleDataAvailable = (event) => {
-	console.log(event);
-    if (event.data.size > 0) {
-		console.log('video data available');
-        recordedChunks.push(event.data);
-    }
+  if (event.data.size > 0) {
+      recordedChunks.push(event.data);
+  }
 };
+
 const handleStop = async (e) => {
 	console.log('stop video');
 	const blob = new Blob(recordedChunks, {
@@ -80,7 +97,6 @@ const handleStop = async (e) => {
     window.electron.saveVideo(buffer); // Send to main process for saving
 }
   
-const startBtn = document.getElementById('startBtn');
 startBtn.onclick = e => {
 	if (!mediaRecorder) {
         console.error("No video source selected! Please select a source first.");
@@ -95,11 +111,10 @@ startBtn.onclick = e => {
     recordedChunks.length = 0; // Clear old data
 	
 	mediaRecorder.start();
-	startBtn.classList.add('is-danger');
+  stopBtn.disabled = false;
 	startBtn.innerText = 'Recording';
+  startBtn.disabled = true;
 };
-
-const stopBtn = document.getElementById('stopBtn');
 
 stopBtn.onclick = e => {
 	if (!mediaRecorder) {
@@ -107,6 +122,7 @@ stopBtn.onclick = e => {
         return;
     }
 	mediaRecorder.stop();
-	startBtn.classList.remove('is-danger');
+  stopBtn.disabled = true;
 	startBtn.innerText = 'Start';
+  startBtn.disabled = false;
 };

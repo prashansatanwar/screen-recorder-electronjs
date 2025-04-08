@@ -3,26 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <title>Hello World!</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
-    />
     <link rel="stylesheet" href="index.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script defer src="render.js"></script>
   </head>
   <body class="content">
-    <h1>⚡ Electron Screen Recorder</h1>
+    <h1 class="text-3xl mb-2">⚡ Electron Screen Recorder</h1>
+    
+    <select id="videoSourceDropdown" class="w-full border-2 hover:border-yellow-500 m-2">
+      <option value="" disabled selected hidden>Choose a Video Source</option>
+    </select>
+    
+    <video class="mx-2"></video>
 
-    <video></video>
+    <div id="recordButtons" class="hidden m-2">
+      <hr />
+      
+      <button id="startBtn" 
+              class="rounded bg-red-500 text-white p-2 px-4 mt-2 cursor-pointer disabled:cursor-not-allowed">
+                
+              Start
+      </button>
+      <button id="stopBtn" disabled 
+              class="rounded bg-yellow-500 text-white p-2 px-4 cursor-pointer disabled:cursor-not-allowed disabled:opacity-70">
+                
+              Stop
+        </button>
+    </div>
 
-    <button id="startBtn" class="button is-primary">Start</button>
-    <button id="stopBtn" class="button is-warning">Stop</button>
 
-    <hr />
 
-    <button id="videoSelectBtn" class="button is-text">
-      Choose a Video Source
-    </button>
-    <select id="videoSourceDropdown" style="display: none;"></select>
   </body>
 </html>
